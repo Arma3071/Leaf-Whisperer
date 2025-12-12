@@ -3,10 +3,15 @@ import { Header } from "@/components/Header";
 import { UploadZone } from "@/components/UploadZone";
 import { ProcessingLoader } from "@/components/ProcessingLoader";
 import { DiagnosisResult, DiagnosisData } from "@/components/DiagnosisResult";
+import { ParticleField } from "@/components/ParticleField";
+import { FloatingLeaves } from "@/components/FloatingLeaves";
+import { GlowOrb } from "@/components/GlowOrb";
+import { StatsCounter } from "@/components/StatsCounter";
+import { Sparkles, Zap, Shield, Leaf } from "lucide-react";
 
 type AppState = "upload" | "processing" | "result";
 
-// Mock diagnosis data for demo - in production, this would come from your API
+// Mock diagnosis data for demo
 const mockDiagnosis: DiagnosisData = {
   plant: "Tomato",
   disease: "Early Blight",
@@ -29,15 +34,7 @@ const Index: React.FC = () => {
     setImagePreview(preview);
     setAppState("processing");
 
-    // Simulate API call - replace with actual backend call
-    // const formData = new FormData();
-    // formData.append('image', file);
-    // fetch('/api/diagnose', { method: 'POST', body: formData })
-    //   .then(res => res.json())
-    //   .then(data => { setDiagnosisData(data); setAppState('result'); })
-
     setTimeout(() => {
-      // Randomly assign severity for demo purposes
       const severities: Array<"healthy" | "mild" | "severe"> = ["healthy", "mild", "severe"];
       const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
       
@@ -60,19 +57,38 @@ const Index: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
+      {/* Background Effects */}
+      <ParticleField />
+      <FloatingLeaves />
+      
+      {/* Gradient Orbs */}
+      <GlowOrb className="top-20 -left-32" color="primary" size="lg" />
+      <GlowOrb className="bottom-40 -right-32" color="accent" size="xl" />
+      <GlowOrb className="top-1/2 left-1/4" color="primary" size="md" />
+      
       <Header />
       
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-12 relative z-10">
         <div className="w-full max-w-lg">
           {appState === "upload" && (
-            <div className="space-y-6 animate-fade-in-up">
-              <div className="text-center space-y-2">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                  Diagnose Your Plants
+            <div className="space-y-8 animate-fade-in-up">
+              {/* Hero Section */}
+              <div className="text-center space-y-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm mb-4">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="text-muted-foreground">Powered by Advanced AI</span>
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  <span className="text-foreground">Diagnose Your</span>
+                  <br />
+                  <span className="text-gradient">Plants Instantly</span>
                 </h2>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Upload a photo of your plant's leaf and our AI will analyze it for diseases and provide actionable recommendations.
+                
+                <p className="text-muted-foreground max-w-md mx-auto text-base">
+                  Upload a photo of your plant's leaf and our AI will analyze it 
+                  for diseases and provide actionable recommendations.
                 </p>
               </div>
               
@@ -81,22 +97,24 @@ const Index: React.FC = () => {
                 isProcessing={false} 
               />
               
-              <div className="flex items-center justify-center gap-6 pt-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">38+</p>
-                  <p className="text-xs text-muted-foreground">Plant Species</p>
-                </div>
-                <div className="h-8 w-px bg-border" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">95%</p>
-                  <p className="text-xs text-muted-foreground">Accuracy</p>
-                </div>
-                <div className="h-8 w-px bg-border" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">50k+</p>
-                  <p className="text-xs text-muted-foreground">Scans</p>
-                </div>
+              {/* Feature Pills */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {[
+                  { icon: Zap, label: "Instant Analysis" },
+                  { icon: Shield, label: "95% Accuracy" },
+                  { icon: Leaf, label: "38+ Species" },
+                ].map((feature, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full glass text-sm"
+                  >
+                    <feature.icon className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-muted-foreground">{feature.label}</span>
+                  </div>
+                ))}
               </div>
+              
+              <StatsCounter />
             </div>
           )}
 
@@ -114,10 +132,16 @@ const Index: React.FC = () => {
         </div>
       </main>
 
-      <footer className="py-4 px-4 border-t border-border bg-card/50">
-        <p className="text-center text-xs text-muted-foreground">
-          AgriGuard AI • Empowering farmers with intelligent crop protection
-        </p>
+      <footer className="py-4 px-4 glass border-t border-border/30 relative z-10">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            AgriGuard AI • Empowering farmers with intelligent crop protection
+          </p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="h-2 w-2 rounded-full bg-severity-healthy animate-pulse" />
+            System Online
+          </div>
+        </div>
       </footer>
     </div>
   );
