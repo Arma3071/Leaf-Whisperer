@@ -28,6 +28,8 @@ const mockDiagnosis: DiagnosisData = {
 };
 
 const Index: React.FC = () => {
+  const { user } = useAuth();
+  const { saveScan } = useScanHistory();
   const [appState, setAppState] = useState<AppState>("upload");
   const [imagePreview, setImagePreview] = useState<string>("");
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
