@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Leaf, Shield, Sparkles, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Leaf, Shield, Sparkles, Menu, X, LogIn, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   { href: "/", label: "Scan" },
@@ -14,13 +15,19 @@ const navLinks = [
 
 export const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="w-full py-4 px-4 md:px-6 glass sticky top-0 z-50">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          {/* Animated Logo */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent-foreground rounded-xl blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
             <div className="relative flex items-center justify-center h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg">
@@ -57,7 +64,7 @@ export const Header: React.FC = () => {
           ))}
         </nav>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full glass text-sm">
             <div className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-severity-healthy opacity-75" />
@@ -66,6 +73,37 @@ export const Header: React.FC = () => {
             <span className="text-muted-foreground">AI Active</span>
             <Shield className="h-4 w-4 text-primary" />
           </div>
+
+          {/* Auth Button */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-sm">
+                <User className="h-3.5 w-3.5 text-primary" />
+                <span className="text-muted-foreground text-xs max-w-[120px] truncate">
+                  {user.email}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Sign Out</span>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/auth")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Sign In</span>
+            </Button>
+          )}
 
           {/* Mobile Menu Toggle */}
           <Button
