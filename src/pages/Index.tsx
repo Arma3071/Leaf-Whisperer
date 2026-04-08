@@ -8,6 +8,8 @@ import { FloatingLeaves } from "@/components/FloatingLeaves";
 import { GlowOrb } from "@/components/GlowOrb";
 import { StatsCounter } from "@/components/StatsCounter";
 import { Sparkles, Zap, Shield, Leaf } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useScanHistory } from "@/hooks/useScanHistory";
 
 type AppState = "upload" | "processing" | "result";
 
