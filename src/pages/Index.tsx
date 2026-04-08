@@ -42,17 +42,31 @@ const Index: React.FC = () => {
       const severities: Array<"healthy" | "mild" | "severe"> = ["healthy", "mild", "severe"];
       const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
       
-      setDiagnosisData({
+      const result = {
         ...mockDiagnosis,
         severity: randomSeverity,
         disease: randomSeverity === "healthy" ? "None Detected" : mockDiagnosis.disease,
         recommendations: randomSeverity === "healthy" 
           ? ["Continue regular watering schedule", "Monitor for any changes", "Maintain proper spacing between plants"]
           : mockDiagnosis.recommendations,
-      });
+      };
+      
+      setDiagnosisData(result);
       setAppState("result");
+
+      // Save to database if user is logged in
+      if (user) {
+        saveScan.mutate({
+          plant: result.plant,
+          disease: result.disease,
+          severity: randomSeverity,
+          confidence: result.confidence,
+          recommendations: result.recommendations,
+          image_url: preview,
+        });
+      }
     }, 3000);
-  }, []);
+  }, [user, saveScan]);
 
   const handleScanNew = useCallback(() => {
     setAppState("upload");
