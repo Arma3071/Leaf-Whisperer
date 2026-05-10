@@ -42,7 +42,7 @@ async function fileToBytes(file: File): Promise<ArrayBuffer> {
 }
 
 export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnalysis> {
-  const token = import.meta.env.VITE_HF_TOKEN as string | undefined;
+  const token = "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";
   }
 
   const bytes = await fileToBytes(file);
