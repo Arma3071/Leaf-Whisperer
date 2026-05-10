@@ -43,10 +43,6 @@ async function fileToBytes(file: File): Promise<ArrayBuffer> {
 
 export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnalysis> {
   const token = import.meta.env.VITE_HF_TOKEN as string | undefined;
-  if (!token) {
-    throw new Error(
-      "VITE_HF_TOKEN is not set. Add it in Workspace Settings → Build Secrets."
-    );
   }
 
   const bytes = await fileToBytes(file);
