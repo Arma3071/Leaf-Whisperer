@@ -54,7 +54,7 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   const res = await fetch(HF_MODEL_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer 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`,
       "Content-Type": file.type || "application/octet-stream",
     },
     body: bytes,
