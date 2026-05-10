@@ -10,6 +10,8 @@ import { StatsCounter } from "@/components/StatsCounter";
 import { Sparkles, Zap, Shield, Leaf } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useScanHistory } from "@/hooks/useScanHistory";
+import { analyzePlantDisease } from "@/utils/analyzePlantDisease";
+import { toast } from "@/hooks/use-toast";
 
 type AppState = "upload" | "processing" | "result";
 
@@ -34,38 +36,52 @@ const Index: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
 
-  const handleImageUpload = useCallback((file: File, preview: string) => {
+  const handleImageUpload = useCallback(async (file: File, preview: string) => {
     setImagePreview(preview);
     setAppState("processing");
 
-    setTimeout(() => {
-      const severities: Array<"healthy" | "mild" | "severe"> = ["healthy", "mild", "severe"];
-      const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
-      
-      const result = {
-        ...mockDiagnosis,
-        severity: randomSeverity,
-        disease: randomSeverity === "healthy" ? "None Detected" : mockDiagnosis.disease,
-        recommendations: randomSeverity === "healthy" 
-          ? ["Continue regular watering schedule", "Monitor for any changes", "Maintain proper spacing between plants"]
-          : mockDiagnosis.recommendations,
+    try {
+      const analysis = await analyzePlantDisease(file);
+
+      const recommendations =
+        analysis.severity === "healthy"
+          ? [
+              "Continue regular watering schedule",
+              "Monitor for any changes",
+              "Maintain proper spacing between plants",
+            ]
+          : mockDiagnosis.recommendations;
+
+      const result: DiagnosisData = {
+        plant: analysis.plant,
+        disease: analysis.disease,
+        severity: analysis.severity,
+        confidence: analysis.confidenceLabel,
+        recommendations,
       };
-      
+
       setDiagnosisData(result);
       setAppState("result");
 
-      // Save to database if user is logged in
       if (user) {
         saveScan.mutate({
           plant: result.plant,
           disease: result.disease,
-          severity: randomSeverity,
+          severity: analysis.severity,
           confidence: result.confidence,
           recommendations: result.recommendations,
           image_url: preview,
         });
       }
-    }, 3000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Analysis failed";
+      toast({
+        title: "Diagnosis failed",
+        description: message,
+        variant: "destructive",
+      });
+      setAppState("upload");
+    }
   }, [user, saveScan]);
 
   const handleScanNew = useCallback(() => {
