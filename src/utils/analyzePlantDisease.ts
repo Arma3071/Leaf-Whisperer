@@ -1,5 +1,4 @@
-const HF_MODEL_URL =
-  "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Severity = "healthy" | "mild" | "severe";
 
@@ -42,36 +41,25 @@ async function fileToBytes(file: File): Promise<ArrayBuffer> {
 }
 
 export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnalysis> {
-  const token = import.meta.env.VITE_HF_TOKEN as string | undefined;
-  if (!token) {
-    throw new Error(
-      "VITE_HF_TOKEN is not set. Add it in Workspace Settings → Build Secrets."
-    );
-  }
-
   const bytes = await fileToBytes(file);
 
-  const res = await fetch(HF_MODEL_URL, {
-    method: "POST",
+  const { data, error } = await supabase.functions.invoke("analyze-plant", {
+    body: bytes,
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": file.type || "application/octet-stream",
     },
-    body: bytes,
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`HuggingFace API error [${res.status}]: ${text || res.statusText}`);
+  if (error) {
+    throw new Error(error.message || "Failed to call diagnosis service");
   }
 
-  const data = (await res.json()) as HFPrediction[] | { error?: string };
-
-  if (!Array.isArray(data)) {
-    throw new Error(data?.error || "Unexpected response from HuggingFace API");
+  const predictions = (data as { predictions?: HFPrediction[]; error?: string })?.predictions;
+  if (!Array.isArray(predictions)) {
+    throw new Error((data as { error?: string })?.error || "Unexpected response from diagnosis service");
   }
 
-  const top = [...data].sort((a, b) => b.score - a.score)[0];
+  const top = [...predictions].sort((a, b) => b.score - a.score)[0];
   if (!top) throw new Error("No predictions returned by the model");
 
   const { plant, disease, isHealthy } = parseLabel(top.label);
