@@ -95,7 +95,7 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   if (!top) throw new Error("No predictions returned by the model");
 
   console.log("Raw label from model:", top.label);
-  const severity: SeverityWithUnknown = SEVERITY_MAP[top.label] ?? (() => {
+  const severity: SeverityWithUnknown = SEVERITY_MAP[top.label] ?? ((): SeverityWithUnknown => {
     console.warn("Unmatched label:", top.label);
     return "unknown";
   })();
