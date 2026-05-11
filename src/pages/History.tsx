@@ -40,9 +40,10 @@ const History: React.FC = () => {
     const variants: Record<string, { bg: string; text: string }> = {
       healthy: { bg: "bg-severity-healthy/20", text: "text-severity-healthy" },
       mild: { bg: "bg-severity-mild/20", text: "text-severity-mild" },
-      severe: { bg: "bg-severity-severe/20", text: "text-severity-severe" }
+      severe: { bg: "bg-severity-severe/20", text: "text-severity-severe" },
+      unknown: { bg: "bg-muted/40", text: "text-muted-foreground" }
     };
-    const { bg, text } = variants[severity] || variants.healthy;
+    const { bg, text } = variants[severity] || variants.unknown;
     return (
       <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium capitalize", bg, text)}>
         {severity}
