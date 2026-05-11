@@ -42,7 +42,11 @@ async function fileToBytes(file: File): Promise<ArrayBuffer> {
 }
 
 export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnalysis> {
-  const token = "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";
+  const token = import.meta.env.VITE_HF_TOKEN as string | undefined;
+  if (!token) {
+    throw new Error(
+      "VITE_HF_TOKEN is not set. Add it in Workspace Settings → Build Secrets."
+    );
   }
 
   const bytes = await fileToBytes(file);
@@ -50,7 +54,7 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   const res = await fetch(HF_MODEL_URL, {
     method: "POST",
     headers: {
-      Authorization: `Bearer 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`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": file.type || "application/octet-stream",
     },
     body: bytes,
