@@ -32,7 +32,7 @@ const SEVERITY_MAP: Record<string, Severity> = {
   "Squash___Powdery_mildew": "mild",
   "Strawberry___Leaf_scorch": "mild",
   "Strawberry___healthy": "healthy",
-  "Tomato___Bacterial_spot": "severe",
+  "Tomato___Bacterial_spot": "mild",
   "Tomato___Early_blight": "mild",
   "Tomato___Late_blight": "severe",
   "Tomato___Leaf_Mold": "mild",
@@ -95,9 +95,11 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   if (!top) throw new Error("No predictions returned by the model");
 
   console.log("Raw label from model:", top.label);
-  const normalizedLabel = top.label.replace(/_{2,}/g, "___");
-  const severity = SEVERITY_MAP[normalizedLabel] ?? SEVERITY_MAP[top.label] ?? "unknown";
-  const { plant, disease } = parseLabel(normalizedLabel);
+  const severity: SeverityWithUnknown = SEVERITY_MAP[top.label] ?? (() => {
+    console.warn("Unmatched label:", top.label);
+    return "unknown";
+  })();
+  const { plant, disease } = parseLabel(top.label);
 
   return {
     rawLabel: top.label,
