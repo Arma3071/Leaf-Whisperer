@@ -22,7 +22,7 @@ const SEVERITY_MAP: Record<string, Severity> = {
   "Orange___Haunglongbing_(Citrus_greening)": "severe",
   "Peach___Bacterial_spot": "severe",
   "Peach___healthy": "healthy",
-  "Pepper,_bell___Bacterial_spot": "severe",
+  "Pepper,_bell___Bacterial_spot": "mild",
   "Pepper,_bell___healthy": "healthy",
   "Potato___Early_blight": "mild",
   "Potato___Late_blight": "severe",
