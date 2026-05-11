@@ -5,7 +5,7 @@ const corsHeaders = {
 };
 
 const HF_MODEL_URL =
-  "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification";
+  "https://router.huggingface.co/hf-inference/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
