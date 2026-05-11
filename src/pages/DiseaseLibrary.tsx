@@ -21,107 +21,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-
-interface Disease {
-  id: string;
-  plant: string;
-  name: string;
-  severity: "mild" | "severe";
-  symptoms: string[];
-  causes: string[];
-  treatments: string[];
-  prevention: string[];
-}
-
-const diseases: Disease[] = [
-  {
-    id: "tomato-early-blight",
-    plant: "Tomato",
-    name: "Early Blight",
-    severity: "mild",
-    symptoms: ["Dark spots with concentric rings", "Yellow halos around spots", "Lower leaves affected first"],
-    causes: ["Alternaria solani fungus", "Warm humid conditions", "Overhead watering"],
-    treatments: ["Remove affected leaves", "Apply copper-based fungicide", "Improve air circulation"],
-    prevention: ["Rotate crops annually", "Use resistant varieties", "Mulch around plants"]
-  },
-  {
-    id: "tomato-late-blight",
-    plant: "Tomato",
-    name: "Late Blight",
-    severity: "severe",
-    symptoms: ["Water-soaked lesions", "White fuzzy growth", "Rapid plant collapse"],
-    causes: ["Phytophthora infestans", "Cool wet weather", "Infected transplants"],
-    treatments: ["Remove and destroy affected plants", "Apply preventive fungicides", "Do not compost infected material"],
-    prevention: ["Use certified disease-free seeds", "Avoid overhead irrigation", "Plant resistant varieties"]
-  },
-  {
-    id: "potato-leaf-roll",
-    plant: "Potato",
-    name: "Leaf Roll Virus",
-    severity: "severe",
-    symptoms: ["Upward rolling of leaves", "Pale yellow coloring", "Stunted growth"],
-    causes: ["Aphid transmission", "Infected seed potatoes", "Nearby infected crops"],
-    treatments: ["Remove infected plants", "Control aphid populations", "No chemical cure available"],
-    prevention: ["Use certified seed potatoes", "Control aphid vectors", "Remove volunteer plants"]
-  },
-  {
-    id: "apple-scab",
-    plant: "Apple",
-    name: "Apple Scab",
-    severity: "mild",
-    symptoms: ["Olive-green spots on leaves", "Velvety texture on spots", "Deformed fruit"],
-    causes: ["Venturia inaequalis fungus", "Spring rains", "Infected fallen leaves"],
-    treatments: ["Apply fungicide sprays", "Remove fallen leaves", "Prune for better airflow"],
-    prevention: ["Plant resistant cultivars", "Clean up fallen debris", "Proper tree spacing"]
-  },
-  {
-    id: "grape-powdery-mildew",
-    plant: "Grape",
-    name: "Powdery Mildew",
-    severity: "mild",
-    symptoms: ["White powdery coating", "Curled distorted leaves", "Reduced fruit quality"],
-    causes: ["Erysiphe necator fungus", "Warm dry conditions", "Poor air circulation"],
-    treatments: ["Apply sulfur-based sprays", "Remove affected shoots", "Improve canopy management"],
-    prevention: ["Choose resistant varieties", "Proper vine training", "Adequate spacing"]
-  },
-  {
-    id: "corn-rust",
-    plant: "Corn",
-    name: "Common Rust",
-    severity: "mild",
-    symptoms: ["Reddish-brown pustules", "Pustules on both leaf surfaces", "Premature leaf death"],
-    causes: ["Puccinia sorghi fungus", "Cool moist weather", "Wind-spread spores"],
-    treatments: ["Apply foliar fungicides", "Remove severely affected plants", "Monitor regularly"],
-    prevention: ["Plant resistant hybrids", "Early planting dates", "Crop rotation"]
-  },
-  {
-    id: "pepper-bacterial-spot",
-    plant: "Pepper",
-    name: "Bacterial Leaf Spot",
-    severity: "severe",
-    symptoms: ["Water-soaked spots", "Raised corky lesions", "Defoliation"],
-    causes: ["Xanthomonas bacteria", "Warm humid conditions", "Contaminated seeds"],
-    treatments: ["Copper bactericides", "Remove infected plants", "Avoid working with wet plants"],
-    prevention: ["Use disease-free seeds", "Rotate crops 2-3 years", "Avoid overhead watering"]
-  },
-  {
-    id: "strawberry-gray-mold",
-    plant: "Strawberry",
-    name: "Gray Mold (Botrytis)",
-    severity: "severe",
-    symptoms: ["Gray fuzzy growth on fruit", "Brown rotting tissue", "Blossom blight"],
-    causes: ["Botrytis cinerea fungus", "High humidity", "Dense plantings"],
-    treatments: ["Remove infected fruit immediately", "Apply fungicides during bloom", "Improve air circulation"],
-    prevention: ["Proper plant spacing", "Straw mulching", "Harvest frequently"]
-  }
-];
+import { diseaseLibrary as diseases } from "@/data/diseaseLibrary";
 
 const plants = Array.from(new Set(diseases.map(d => d.plant)));
 
 const DiseaseLibrary: React.FC = () => {
   const [search, setSearch] = useState("");
   const [selectedPlant, setSelectedPlant] = useState<string | null>(null);
-  const [selectedSeverity, setSelectedSeverity] = useState<"all" | "mild" | "severe">("all");
+  const [selectedSeverity, setSelectedSeverity] = useState<"all" | "healthy" | "mild" | "severe">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filteredDiseases = diseases.filter(disease => {
@@ -176,6 +83,14 @@ const DiseaseLibrary: React.FC = () => {
                   onClick={() => setSelectedSeverity("all")}
                 >
                   All
+                </Button>
+                <Button
+                  variant={selectedSeverity === "healthy" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedSeverity("healthy")}
+                  className={selectedSeverity === "healthy" ? "bg-severity-healthy text-severity-healthy-foreground hover:bg-severity-healthy/90" : ""}
+                >
+                  Healthy
                 </Button>
                 <Button
                   variant={selectedSeverity === "mild" ? "default" : "outline"}
@@ -236,11 +151,15 @@ const DiseaseLibrary: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         "h-12 w-12 rounded-xl flex items-center justify-center",
-                        disease.severity === "mild" 
-                          ? "bg-severity-mild/20" 
+                        disease.severity === "healthy"
+                          ? "bg-severity-healthy/20"
+                          : disease.severity === "mild"
+                          ? "bg-severity-mild/20"
                           : "bg-severity-severe/20"
                       )}>
-                        {disease.severity === "mild" ? (
+                        {disease.severity === "healthy" ? (
+                          <CheckCircle className="h-6 w-6 text-severity-healthy" />
+                        ) : disease.severity === "mild" ? (
                           <AlertTriangle className="h-6 w-6 text-severity-mild" />
                         ) : (
                           <AlertCircle className="h-6 w-6 text-severity-severe" />
@@ -249,7 +168,7 @@ const DiseaseLibrary: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold text-foreground">{disease.name}</h3>
-                          <Badge variant={disease.severity === "mild" ? "secondary" : "destructive"}>
+                          <Badge variant={disease.severity === "severe" ? "destructive" : disease.severity === "mild" ? "secondary" : "outline"}>
                             {disease.severity}
                           </Badge>
                         </div>
@@ -301,7 +220,7 @@ const DiseaseLibrary: React.FC = () => {
                             Treatment
                           </h4>
                           <ul className="space-y-1">
-                            {disease.treatments.map((t, i) => (
+                            {disease.treatment.map((t, i) => (
                               <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                                 <span className="h-1.5 w-1.5 rounded-full bg-severity-healthy mt-1.5 flex-shrink-0" />
                                 {t}
