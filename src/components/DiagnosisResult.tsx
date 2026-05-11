@@ -24,7 +24,7 @@ import { generateDiagnosisReport } from "@/utils/generateReport";
 export interface DiagnosisData {
   plant: string;
   disease: string;
-  severity: "healthy" | "mild" | "severe";
+  severity: "healthy" | "mild" | "severe" | "unknown";
   confidence: string;
   maskUrl?: string;
   recommendations?: string[];
@@ -66,6 +66,16 @@ const severityConfig = {
     glowClass: "glow-severe",
     message: "Urgent action required. Immediate treatment needed.",
     gradient: "from-severity-severe/20 to-severity-severe/5",
+  },
+  unknown: {
+    icon: Info,
+    label: "Unknown",
+    colorClass: "bg-muted text-muted-foreground",
+    borderClass: "border-border/30",
+    bgClass: "bg-muted/10",
+    glowClass: "",
+    message: "Severity could not be determined from this label.",
+    gradient: "from-muted/30 to-muted/5",
   },
 };
 
