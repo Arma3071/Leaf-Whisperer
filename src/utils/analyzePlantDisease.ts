@@ -3,45 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 export type Severity = "healthy" | "mild" | "severe";
 type SeverityWithUnknown = Severity | "unknown";
 
-const SEVERITY_MAP: Record<string, Severity> = {
-  "Apple___Apple_scab": "mild",
-  "Apple___Black_rot": "severe",
-  "Apple___Cedar_apple_rust": "mild",
-  "Apple___healthy": "healthy",
-  "Blueberry___healthy": "healthy",
-  "Cherry_(including_sour)___Powdery_mildew": "mild",
-  "Cherry_(including_sour)___healthy": "healthy",
-  "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": "mild",
-  "Corn_(maize)___Common_rust_": "mild",
-  "Corn_(maize)___Northern_Leaf_Blight": "severe",
-  "Corn_(maize)___healthy": "healthy",
-  "Grape___Black_rot": "severe",
-  "Grape___Esca_(Black_Measles)": "severe",
-  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": "mild",
-  "Grape___healthy": "healthy",
-  "Orange___Haunglongbing_(Citrus_greening)": "severe",
-  "Peach___Bacterial_spot": "severe",
-  "Peach___healthy": "healthy",
-  "Pepper,_bell___Bacterial_spot": "mild",
-  "Pepper,_bell___healthy": "healthy",
-  "Potato___Early_blight": "mild",
-  "Potato___Late_blight": "severe",
-  "Potato___healthy": "healthy",
-  "Raspberry___healthy": "healthy",
-  "Soybean___healthy": "healthy",
-  "Squash___Powdery_mildew": "mild",
-  "Strawberry___Leaf_scorch": "mild",
-  "Strawberry___healthy": "healthy",
-  "Tomato___Bacterial_spot": "mild",
-  "Tomato___Early_blight": "mild",
-  "Tomato___Late_blight": "severe",
-  "Tomato___Leaf_Mold": "mild",
-  "Tomato___Septoria_leaf_spot": "mild",
-  "Tomato___Spider_mites Two-spotted_spider_mite": "mild",
-  "Tomato___Target_Spot": "mild",
-  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": "severe",
-  "Tomato___Tomato_mosaic_virus": "severe",
-  "Tomato___healthy": "healthy",
+const getSeverity = (label: string): Severity => {
+  const l = label.toLowerCase().replace(/_/g, " ");
+
+  if (l.includes("healthy")) return "healthy";
+
+  const severeKeywords = [
+    "late blight", "black rot", "mosaic virus", "yellow leaf curl",
+    "citrus greening", "haunglongbing", "esca", "black measles",
+    "northern leaf blight",
+  ];
+
+  if (severeKeywords.some((k) => l.includes(k))) return "severe";
+
+  return "mild";
 };
 
 export interface PlantDiseaseAnalysis {
@@ -95,10 +70,7 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   if (!top) throw new Error("No predictions returned by the model");
 
   console.log("Raw label from model:", top.label);
-  const severity: SeverityWithUnknown = SEVERITY_MAP[top.label] ?? ((): SeverityWithUnknown => {
-    console.warn("Unmatched label:", top.label);
-    return "unknown";
-  })();
+  const severity: SeverityWithUnknown = getSeverity(top.label);
   const { plant, disease } = parseLabel(top.label);
 
   return {
