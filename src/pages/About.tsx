@@ -50,10 +50,10 @@ const features = [
 ];
 
 const team = [
-  { role: "AI/ML Lead", focus: "Deep Learning & Computer Vision" },
-  { role: "Backend Developer", focus: "FastAPI & Model Deployment" },
-  { role: "Frontend Developer", focus: "React & User Experience" },
-  { role: "Data Scientist", focus: "Dataset Curation & Analysis" }
+  { role: "Shoaib Raza", focus: "Supervisor" },
+  { role: "Abdullah Asif", focus: "Team Leader" },
+  { role: "Muhammad Armaghan Shahzad", focus: "AI Lead" },
+  { role: "Moiz Khan Jadoon", focus: "Documentation" }
 ];
 
 const About: React.FC = () => {
