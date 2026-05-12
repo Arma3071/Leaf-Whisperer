@@ -1,5 +1,22 @@
 import jsPDF from "jspdf";
 import type { DiagnosisData } from "@/components/DiagnosisResult";
+import { diseaseLibrary, type Disease } from "@/data/diseaseLibrary";
+
+const normalize = (s: string) => s.toLowerCase().replace(/[_\-\s]+/g, " ").trim();
+
+function findDisease(plant: string, disease: string): Disease | undefined {
+  const p = normalize(plant);
+  const d = normalize(disease);
+  return diseaseLibrary.find((entry) => {
+    const eP = normalize(entry.plant);
+    const eN = normalize(entry.name);
+    const eId = normalize(entry.id);
+    const plantMatch = eP.includes(p) || p.includes(eP);
+    const nameMatch =
+      eN.includes(d) || d.includes(eN) || eId.includes(d.replace(/\s+/g, "-"));
+    return plantMatch && nameMatch;
+  });
+}
 
 const severityLabels: Record<string, string> = {
   healthy: "Healthy",
@@ -118,6 +135,59 @@ export function generateDiagnosisReport(data: DiagnosisData, imagePreview: strin
       const lines = doc.splitTextToSize(rec, contentWidth - 15);
       doc.text(lines, margin + 12, y + 3);
       y += lines.length * 5 + 4;
+    });
+  }
+
+  // --- Disease Details (from library) ---
+  const matched = findDisease(data.plant, data.disease);
+  if (matched) {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const ensureSpace = (needed: number) => {
+      if (y + needed > pageHeight - 25) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    ensureSpace(20);
+    y += 4;
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(margin, y, contentWidth, 8, 2, 2, "F");
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Disease Details", margin + 5, y + 6);
+    y += 14;
+
+    const sections: { title: string; items: string[] }[] = [
+      { title: "Symptoms", items: matched.symptoms },
+      { title: "Causes", items: matched.causes },
+      { title: "Treatment", items: matched.treatment },
+      { title: "Prevention", items: matched.prevention },
+    ];
+
+    sections.forEach((section) => {
+      ensureSpace(12);
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(section.title, margin, y);
+      y += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+
+      section.items.forEach((item) => {
+        const lines = doc.splitTextToSize(item, contentWidth - 8);
+        ensureSpace(lines.length * 5 + 2);
+        doc.setTextColor(sevColor[0], sevColor[1], sevColor[2]);
+        doc.text("•", margin + 2, y + 4);
+        doc.setTextColor(60, 60, 60);
+        doc.text(lines, margin + 8, y + 4);
+        y += lines.length * 5 + 2;
+      });
+      y += 4;
     });
   }
 
