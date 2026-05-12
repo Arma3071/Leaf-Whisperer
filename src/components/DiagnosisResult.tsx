@@ -20,6 +20,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateDiagnosisReport } from "@/utils/generateReport";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { diseaseLibrary, type Disease } from "@/data/diseaseLibrary";
+import { BookOpen } from "lucide-react";
 
 export interface DiagnosisData {
   plant: string;
@@ -85,12 +88,34 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
   onScanNew,
 }) => {
   const [showMask, setShowMask] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const config = severityConfig[data.severity];
   const Icon = config.icon;
 
   const handleDownload = () => {
     generateDiagnosisReport(data, imagePreview);
   };
+
+  const normalize = (s: string) => s.toLowerCase().replace(/[_\-\s]+/g, " ").trim();
+  const matchedDisease: Disease | undefined = (() => {
+    const plant = normalize(data.plant);
+    const disease = normalize(data.disease);
+    return diseaseLibrary.find((d) => {
+      const dPlant = normalize(d.plant);
+      const dName = normalize(d.name);
+      const dId = normalize(d.id);
+      const plantMatch = dPlant.includes(plant) || plant.includes(dPlant);
+      const nameMatch =
+        dName.includes(disease) ||
+        disease.includes(dName) ||
+        dId.includes(disease.replace(/\s+/g, "-"));
+      return plantMatch && nameMatch;
+    });
+  })();
+
+  const sectionSeverityClass = matchedDisease
+    ? severityConfig[matchedDisease.severity].colorClass
+    : "";
 
   return (
     <div className="w-full max-w-lg mx-auto space-y-4 animate-slide-up">
@@ -243,23 +268,76 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={() => setInfoOpen(true)}
+          variant="outline"
+          disabled={!matchedDisease}
+          className="flex-1 min-w-[140px] h-12 glass border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
+        >
+          <BookOpen className="h-4 w-4" />
+          More Info
+        </Button>
         <Button
           onClick={handleDownload}
           variant="outline"
-          className="flex-1 h-12 glass border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
+          className="flex-1 min-w-[140px] h-12 glass border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
         >
           <Download className="h-4 w-4" />
           Download Report
         </Button>
         <Button
           onClick={onScanNew}
-          className="flex-1 h-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
+          className="flex-1 min-w-[140px] h-12 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
         >
           <RefreshCw className="h-4 w-4" />
           Scan New Leaf
         </Button>
       </div>
+
+      <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto glass">
+          {matchedDisease && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <Leaf className="h-5 w-5 text-primary" />
+                  {matchedDisease.plant} – {matchedDisease.name}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-5 pt-2">
+                <Badge className={cn(sectionSeverityClass, "text-xs")}>
+                  {severityConfig[matchedDisease.severity].label}
+                </Badge>
+
+                {[
+                  { title: "Symptoms", items: matchedDisease.symptoms },
+                  { title: "Causes", items: matchedDisease.causes },
+                  { title: "Treatment", items: matchedDisease.treatment },
+                  { title: "Prevention", items: matchedDisease.prevention },
+                ].map((section) => (
+                  <div key={section.title}>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      {section.title}
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {section.items.map((item, i) => (
+                        <li
+                          key={i}
+                          className="flex gap-2 text-sm text-muted-foreground"
+                        >
+                          <span className="text-primary mt-1">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

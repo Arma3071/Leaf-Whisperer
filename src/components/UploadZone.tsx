@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Upload, Camera, Image, Sparkles, Zap } from "lucide-react";
+import { Upload, Image, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UploadZoneProps {
@@ -116,20 +116,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onImageUpload, isProcess
             <span className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-all hover:shadow-xl hover:scale-105 active:scale-100">
               <Image className="h-4 w-4" />
               Browse Files
-            </span>
-          </label>
-          
-          <label className="cursor-pointer group/btn">
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleInputChange}
-              className="hidden"
-            />
-            <span className="inline-flex items-center gap-2 rounded-xl border-2 border-primary/50 bg-background/50 px-5 py-3 text-sm font-medium text-primary transition-all hover:bg-primary/10 hover:border-primary hover:scale-105 active:scale-100">
-              <Camera className="h-4 w-4" />
-              Take Photo
             </span>
           </label>
         </div>
