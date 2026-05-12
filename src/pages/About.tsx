@@ -20,8 +20,8 @@ import { Button } from "@/components/ui/button";
 const steps = [
   {
     icon: Camera,
-    title: "Capture",
-    description: "Take a photo of your plant's leaf using your phone camera or upload an existing image."
+    title: "Upload",
+    description: "Upload a photo of your plant's leaf."
   },
   {
     icon: Brain,
