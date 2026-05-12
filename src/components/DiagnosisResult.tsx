@@ -272,7 +272,6 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
         <Button
           onClick={() => setInfoOpen(true)}
           variant="outline"
-          disabled={!matchedDisease}
           className="flex-1 min-w-[140px] h-12 glass border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
         >
           <BookOpen className="h-4 w-4" />
