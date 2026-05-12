@@ -34,13 +34,30 @@ interface HFPrediction {
 }
 
 function parseLabel(rawLabel: string): { plant: string; disease: string; isHealthy: boolean } {
-  // Labels look like "Tomato___Early_blight" or "Apple___healthy"
-  const [plantRaw, diseaseRaw = ""] = rawLabel.split("___");
-  const plant = plantRaw.replace(/_/g, " ").trim() || "Unknown";
-  const diseaseClean = diseaseRaw.replace(/_/g, " ").trim();
-  const isHealthy = /healthy/i.test(diseaseClean) || diseaseClean === "";
-  const disease = isHealthy ? "None Detected" : diseaseClean || "Unknown disease";
-  return { plant, disease, isHealthy };
+  const label = rawLabel.replace(/_/g, " ").trim();
+
+  let plant = label;
+  let disease = "Unknown";
+
+  const withMatch = label.match(/^(.+?)\s+with\s+(.+)$/i);
+  const dashMatch = label.match(/^(.+?)\s+[–-]\s+(.+)$/);
+  const tripleMatch = rawLabel.match(/^(.+?)___(.+)$/);
+
+  if (withMatch) {
+    plant = withMatch[1].trim();
+    disease = withMatch[2].trim();
+  } else if (dashMatch) {
+    plant = dashMatch[1].trim();
+    disease = dashMatch[2].trim();
+  } else if (tripleMatch) {
+    plant = tripleMatch[1].replace(/_/g, " ").trim();
+    disease = tripleMatch[2].replace(/_/g, " ").trim();
+  }
+
+  const isHealthy = /healthy/i.test(disease) || disease === "";
+  if (isHealthy) disease = "None Detected";
+
+  return { plant: plant || "Unknown", disease: disease || "Unknown", isHealthy };
 }
 
 async function fileToBytes(file: File): Promise<ArrayBuffer> {
