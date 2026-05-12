@@ -1,74 +1,74 @@
-# Welcome to your Lovable project
+# Plant Disease Detection & Severity Assessment System 🌿🔍
 
-## Project info
+An AI-powered end-to-end web application for automated plant disease detection and severity assessment using deep learning and computer vision techniques. This system enables farmers and agricultural professionals to upload leaf images and instantly receive disease predictions, severity analysis, confidence scores, and downloadable PDF diagnostic reports.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Features
 
-## How can I edit this code?
+* 🌱 Detects **38 different plant diseases**
+* 📊 Severity assessment using lesion coverage analysis
+* ⚡ Real-time predictions in under 2 seconds
+* 🧠 Fine-tuned **MobileNetV2** transfer learning model
+* 🎨 HSV + K-Means based lesion segmentation
+* 📄 Automated PDF report generation
+* 🔐 JWT-based authentication & secure user management
+* 📱 Fully responsive frontend for mobile and desktop
+* 📂 Diagnosis history and expert annotation support
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+### Machine Learning
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+* PyTorch
+* MobileNetV2
+* OpenCV
+* Scikit-learn
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend
 
-**Use your preferred IDE**
+* FastAPI
+* JWT Authentication
+* MongoDB / Lovable Cloud
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend
 
-The only requirement is having Bun installed - [install Bun](https://bun.sh/docs/installation)
+* Lovable (React-based UI)
 
-Follow these steps:
+## 📈 Model Performance
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* ✅ Validation Accuracy: **92%**
+* ✅ Test Accuracy: **91.8%**
+* ✅ Mean Response Time: **1.48s**
+* ✅ Mean IoU for Segmentation: **0.817**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🧪 Pipeline Overview
 
-# Step 3: Install the necessary dependencies.
-bun install
+1. Image Upload & Validation
+2. Image Preprocessing & Normalization
+3. HSV Color Space Conversion
+4. K-Means Lesion Segmentation
+5. Disease Classification using MobileNetV2
+6. Severity Quantification
+7. PDF Report Generation & Result Storage
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-bun run dev
-```
+## 📚 Dataset
 
-**Edit a file directly in GitHub**
+* PlantVillage Dataset
+* 54,305 images across 38 disease classes
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 👥 Team Members
 
-**Use GitHub Codespaces**
+* Muhammad Abdullah Asif
+* Muhammad Armaghan Shahzad
+* Moiz Jadoon
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎯 Future Improvements
 
-## What technologies are used for this project?
+* Vision Transformer integration
+* Multi-disease detection
+* Mobile application support
+* Cloud scalability for large-scale deployment
+* Geospatial disease monitoring
 
-This project is built with:
+## 📄 License
 
-- Bun 1.3.4
-- Vite 7.2.7
-- TypeScript
-- React 19.2.1
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project was developed as a Final Year Project (FYP) at the FAST School of Computing, National University of Computer and Emerging Sciences (FAST-NUCES), Karachi.
