@@ -272,7 +272,6 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
         <Button
           onClick={() => setInfoOpen(true)}
           variant="outline"
-          disabled={!matchedDisease}
           className="flex-1 min-w-[140px] h-12 glass border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
         >
           <BookOpen className="h-4 w-4" />
@@ -297,7 +296,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
 
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto glass">
-          {matchedDisease && (
+          {matchedDisease ? (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 text-xl">
@@ -333,6 +332,18 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({
                     </ul>
                   </div>
                 ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-xl">
+                  <Leaf className="h-5 w-5 text-primary" />
+                  {data.plant} – {data.disease}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="pt-2 text-sm text-muted-foreground">
+                No additional info available for this diagnosis in our library yet.
               </div>
             </>
           )}
