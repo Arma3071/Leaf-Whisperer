@@ -17,6 +17,8 @@ import {
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import shoaibPhoto from "@/assets/team-shoaib.png";
+import armaghanPhoto from "@/assets/team-armaghan.png";
+import abdullahPhoto from "@/assets/team-abdullah.png";
 
 const steps = [
   {
@@ -52,8 +54,8 @@ const features = [
 
 const team = [
   { role: "Shoaib Raza", focus: "Supervisor", photo: shoaibPhoto },
-  { role: "Abdullah Asif", focus: "Team Leader" },
-  { role: "Muhammad Armaghan Shahzad", focus: "AI Lead" },
+  { role: "Abdullah Asif", focus: "Team Leader", photo: abdullahPhoto },
+  { role: "Muhammad Armaghan Shahzad", focus: "AI Lead", photo: armaghanPhoto },
   { role: "Moiz Khan Jadoon", focus: "Documentation" }
 ];
 
