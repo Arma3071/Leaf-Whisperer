@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import shoaibPhoto from "@/assets/team-shoaib.png";
 
 const steps = [
   {
@@ -50,7 +51,7 @@ const features = [
 ];
 
 const team = [
-  { role: "Shoaib Raza", focus: "Supervisor" },
+  { role: "Shoaib Raza", focus: "Supervisor", photo: shoaibPhoto },
   { role: "Abdullah Asif", focus: "Team Leader" },
   { role: "Muhammad Armaghan Shahzad", focus: "AI Lead" },
   { role: "Moiz Khan Jadoon", focus: "Documentation" }
@@ -172,8 +173,12 @@ const About: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {team.map((member, i) => (
                 <div key={i} className="glass rounded-xl p-4 hover:scale-105 transition-transform">
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Users className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                    {member.photo ? (
+                      <img src={member.photo} alt={member.role} className="h-full w-full object-cover" />
+                    ) : (
+                      <Users className="h-6 w-6 text-primary" />
+                    )}
                   </div>
                   <h3 className="font-semibold text-foreground text-sm">{member.role}</h3>
                   <p className="text-xs text-muted-foreground mt-1">{member.focus}</p>
