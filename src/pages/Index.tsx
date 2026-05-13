@@ -12,8 +12,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useScanHistory } from "@/hooks/useScanHistory";
 import { analyzePlantDisease } from "@/utils/analyzePlantDisease";
 import { toast } from "@/hooks/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
-type AppState = "upload" | "processing" | "result";
+type AppState = "upload" | "processing" | "result" | "error";
 
 // Mock diagnosis data for demo
 const mockDiagnosis: DiagnosisData = {
@@ -35,10 +37,12 @@ const Index: React.FC = () => {
   const [appState, setAppState] = useState<AppState>("upload");
   const [imagePreview, setImagePreview] = useState<string>("");
   const [diagnosisData, setDiagnosisData] = useState<DiagnosisData | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleImageUpload = useCallback(async (file: File, preview: string) => {
     setImagePreview(preview);
     setAppState("processing");
+    setErrorMessage("");
 
     try {
       const analysis = await analyzePlantDisease(file);
@@ -80,7 +84,9 @@ const Index: React.FC = () => {
         description: message,
         variant: "destructive",
       });
-      setAppState("upload");
+      setErrorMessage(message);
+      setDiagnosisData(null);
+      setAppState("error");
     }
   }, [user, saveScan]);
 
@@ -88,6 +94,7 @@ const Index: React.FC = () => {
     setAppState("upload");
     setImagePreview("");
     setDiagnosisData(null);
+    setErrorMessage("");
   }, []);
 
   return (
@@ -162,6 +169,27 @@ const Index: React.FC = () => {
               imagePreview={imagePreview}
               onScanNew={handleScanNew}
             />
+          )}
+
+          {appState === "error" && (
+            <div className="space-y-6 animate-fade-in-up">
+              {imagePreview && (
+                <div className="rounded-2xl overflow-hidden glass border border-border/30">
+                  <img src={imagePreview} alt="Uploaded" className="w-full max-h-72 object-cover" />
+                </div>
+              )}
+              <Alert variant="destructive" className="glass">
+                <AlertTriangle className="h-5 w-5" />
+                <AlertTitle>Unable to diagnose</AlertTitle>
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+              <button
+                onClick={handleScanNew}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] active:scale-100"
+              >
+                Try another image
+              </button>
+            </div>
           )}
         </div>
       </main>

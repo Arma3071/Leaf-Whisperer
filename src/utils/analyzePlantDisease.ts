@@ -86,6 +86,21 @@ export async function analyzePlantDisease(file: File): Promise<PlantDiseaseAnaly
   const top = [...predictions].sort((a, b) => b.score - a.score)[0];
   if (!top) throw new Error("No predictions returned by the model");
 
+  const sorted = [...predictions].sort((a, b) => b.score - a.score);
+  const second = sorted[1];
+
+  const MIN_CONFIDENCE = 50; // percent
+  const topPct = top.score * 100;
+  if (topPct < MIN_CONFIDENCE) {
+    throw new Error("Unable to diagnose. Please upload a clear image of a plant leaf.");
+  }
+  if (second) {
+    const gap = (top.score - second.score) * 100;
+    if (gap < 10) {
+      throw new Error("Unable to diagnose. Please upload a clear image of a plant leaf.");
+    }
+  }
+
   console.log("Raw label from model:", top.label);
   const severity: SeverityWithUnknown = getSeverity(top.label);
   const { plant, disease } = parseLabel(top.label);
