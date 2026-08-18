@@ -9,17 +9,14 @@ const corsHeaders = {
 };
 
 const PredictionsSchema = z.object({
-  predictions: z
-    .array(
-      z.object({
-        label: z
-          .string()
-          .describe('Format: "<Plant> with <Disease>" or "<Plant> with Healthy"'),
-        score: z.number().min(0).max(1),
-      }),
-    )
-    .min(1)
-    .max(4),
+  predictions: z.array(
+    z.object({
+      label: z
+        .string()
+        .describe('Format: "<Plant> with <Disease>" or "<Plant> with Healthy"'),
+      score: z.number().describe("Confidence between 0 and 1"),
+    }),
+  ),
 });
 
 function toBase64(bytes: ArrayBuffer): string {
@@ -60,6 +57,7 @@ Deno.serve(async (req) => {
       name: "lovable",
       baseURL: "https://ai.gateway.lovable.dev/v1",
       headers: { "Lovable-API-Key": key },
+      supportsStructuredOutputs: true,
     });
 
     const dataUrl = `data:${contentType.startsWith("image/") ? contentType : "image/jpeg"};base64,${toBase64(bytes)}`;
