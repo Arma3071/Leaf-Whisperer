@@ -1,11 +1,33 @@
+import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible";
+import { generateText, Output } from "npm:ai";
+import { z } from "npm:zod";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
 
-const HF_MODEL_URL =
-  "https://router.huggingface.co/hf-inference/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification";
+const PredictionsSchema = z.object({
+  predictions: z.array(
+    z.object({
+      label: z
+        .string()
+        .describe('Format: "<Plant> with <Disease>" or "<Plant> with Healthy"'),
+      score: z.number().describe("Confidence between 0 and 1"),
+    }),
+  ),
+});
+
+function toBase64(bytes: ArrayBuffer): string {
+  const arr = new Uint8Array(bytes);
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < arr.length; i += chunk) {
+    binary += String.fromCharCode(...arr.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,9 +35,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const token = Deno.env.get("HF_TOKEN");
-    if (!token) {
-      return new Response(JSON.stringify({ error: "HF_TOKEN not configured" }), {
+    const key = Deno.env.get("LOVABLE_API_KEY");
+    if (!key) {
+      return new Response(JSON.stringify({ error: "AI is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -31,32 +53,44 @@ Deno.serve(async (req) => {
       });
     }
 
-    const hfRes = await fetch(HF_MODEL_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": contentType,
-      },
-      body: bytes,
+    const gateway = createOpenAICompatible({
+      name: "lovable",
+      baseURL: "https://ai.gateway.lovable.dev/v1",
+      headers: { "Lovable-API-Key": key },
+      supportsStructuredOutputs: true,
     });
 
-    if (!hfRes.ok) {
-      const text = await hfRes.text().catch(() => "");
-      return new Response(
-        JSON.stringify({ error: `HuggingFace error [${hfRes.status}]: ${text || hfRes.statusText}` }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+    const dataUrl = `data:${contentType.startsWith("image/") ? contentType : "image/jpeg"};base64,${toBase64(bytes)}`;
+
+    const { output } = await generateText({
+      model: gateway("google/gemini-3.6-flash"),
+      output: Output.object({ schema: PredictionsSchema }),
+      system:
+        "You are a plant pathology classifier trained on the PlantVillage dataset (38 classes). " +
+        "Given a photo, return up to 4 ranked predictions with calibrated confidence scores summing to about 1. " +
+        'Each label MUST use the exact format "<Plant> with <Disease>" (e.g. "Tomato with Late Blight") ' +
+        'or "<Plant> with Healthy" for a healthy leaf. ' +
+        "If the image is not a plant leaf, return several low-confidence predictions (all below 0.4).",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "Diagnose this plant leaf." },
+            { type: "image", image: dataUrl },
+          ],
+        },
+      ],
+    });
+
+    const predictions = output?.predictions ?? [];
+    if (!predictions.length) {
+      return new Response(JSON.stringify({ error: "No predictions returned" }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const data = await hfRes.json();
-    if (!Array.isArray(data)) {
-      return new Response(
-        JSON.stringify({ error: data?.error || "Unexpected HF response" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    return new Response(JSON.stringify({ predictions: data }), {
+    return new Response(JSON.stringify({ predictions }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
